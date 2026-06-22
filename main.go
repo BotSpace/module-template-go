@@ -108,11 +108,11 @@ func main() {
 		Execute: func(c *botmodule.ExecuteCtx) botmodule.Result {
 			cred, ok := c.Credential("api_credential")
 			if !ok {
+				// Result.Error → platforma buni debug error ro'yxati + alert'da
+				// ko'rsatadi va node'ni qizil qiladi (flow to'xtaydi).
 				return botmodule.Result{
-					ContextUpdates: map[string]any{
-						"auth_header": "",
-						"cred_type":   "",
-					},
+					ContextUpdates: map[string]any{"auth_header": "", "cred_type": ""},
+					Error:          "credential tanlanmagan",
 				}
 			}
 
