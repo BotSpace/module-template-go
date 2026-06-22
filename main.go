@@ -140,9 +140,10 @@ func main() {
 		Description: "Xabarda berilgan kalit so'z bo'lsa ishga tushadi",
 		Category:    "triggers",
 		Icon:        "zap",
-		Color:       "amber",
+		Color:       "trigger-blue",
 		Trigger:     true,
 		TriggerMode: "event-match",
+		Global:      true, // har qanday holatda ishlasin (boshqa flow ichida bo'lsa ham)
 		Content: []botmodule.Field{
 			{
 				Type:        "text",
