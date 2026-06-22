@@ -114,23 +114,21 @@ Execute: func(c *botmodule.ExecuteCtx) botmodule.Result {
 
 ---
 
-## SDK `vendor/` ichida — push qilishdan oldin yangilang
+## SDK qanday ulanadi
 
-SDK kodi repo ichidagi `vendor/` papkada keladi. Shu sabab platforma (yoki
-Kaniko) reponi klonlab, **network'siz** to'g'ridan-to'g'ri build qiladi —
-`go get` yoki tashqi proxy kerak emas.
+`botmodule-go` SDK alohida public repo: `github.com/BotSpace/botmodule-go`.
+Template uni oddiy Go dependency sifatida `go.mod`'da `require` qiladi —
+build paytida GitHub'dan yuklanadi (`go mod download`). Vendoring yo'q.
 
-Node'larni o'zgartirgach `vendor/` ni yangilang va push qiling:
-
+SDK versiyasini yangilash:
 ```bash
+go get github.com/BotSpace/botmodule-go@latest
 go mod tidy
-go mod vendor      # SDK'ni vendor/ ga ko'chiradi
-git add -A && git commit -m "update" && git push
+git add go.mod go.sum && git commit -m "bump SDK" && git push
 ```
 
-> `go.mod` dagi `replace ... => ../botmodule-go` faqat SDK'ni parallel ishlab
-> chiqayotganlar uchun. `vendor/` mavjud bo'lgani uchun build uni o'qimaydi —
-> o'chirishingiz shart emas.
+> `go.sum` commit qilinadi — build checksum'ni o'sha fayldan tekshiradi
+> (Dockerfile'da `GOSUMDB=off`, shu sabab sum.golang.org kerak emas).
 
 ## Lokal test (Docker)
 

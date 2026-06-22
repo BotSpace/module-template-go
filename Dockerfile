@@ -7,11 +7,18 @@ FROM golang:1.22-alpine AS builder
 
 WORKDIR /build
 
-# Manba kod + vendor/ (SDK shu yerda — build paytida network kerak emas).
+# go.sum bor → checksum o'sha fayldan tekshiriladi, sum.golang.org kerak emas.
+ENV GOSUMDB=off
+
+# Dependency cache qatlami: botmodule-go SDK GitHub'dan yuklanadi (public modul).
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Manba kod.
 COPY . .
 
-# vendor/ mavjud → -mod=vendor offline build. CGO o'chiq → statik binary.
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -trimpath -ldflags="-s -w" -o /module .
+# CGO o'chiq → statik binary.
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /module .
 
 # ---- Runtime ----
 FROM alpine:3.20
