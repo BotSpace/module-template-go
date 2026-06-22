@@ -58,6 +58,25 @@ func main() {
 	})
 
 	// ------------------------------------------------------------------
+	// Modul o'z CREDENTIAL TURINI e'lon qiladi — foydalanuvchi shu turdan
+	// credential yaratadi. Input soni/turini modul o'zi belgilaydi.
+	// ------------------------------------------------------------------
+	m.AddCredentialType(botmodule.CredentialType{
+		Key:   "mymodule.apikey",
+		Label: "MyModule API",
+		Icon:  "key",
+		Color: "#10A37F",
+		Mode:  "header", // engine bu credential'ni qanday qo'llashi
+		Fields: []botmodule.CredentialField{
+			{Name: "token", Label: "API Token", Type: "text", Required: true, Secret: true},
+			{Name: "base_url", Label: "Base URL", Type: "text", Placeholder: "https://api.example.com"},
+			{Name: "model", Label: "Model", Type: "select", Options: []botmodule.SelectOption{
+				{Value: "small", Label: "Small"},
+				{Value: "large", Label: "Large"},
+			}},
+		},
+	})
+
 	// 2. Action node — AuthHeader (credential ishlatish namunasi)
 	//    Tanlangan credential'dan Authorization header quradi.
 	//    Engine credential_id ni o'zi resolve qilib decrypted sirni uzatadi.
@@ -68,13 +87,13 @@ func main() {
 		Description: "Credential'dan HTTP auth header quradi",
 		Category:    "integrations",
 		Icon:        "credit-card",
-		Color:       "emerald",
+		Color:       "action-emerald",
 		Content: []botmodule.Field{
 			{
 				Type:           "credential",
 				Key:            "api_credential",
 				Label:          "Credential",
-				CredentialType: "", // bo'sh = har qanday tip qabul qilinadi
+				CredentialType: "mymodule.apikey", // modul e'lon qilgan tur bilan filtr
 			},
 			{
 				Type:        "text",
