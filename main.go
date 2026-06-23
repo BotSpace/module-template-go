@@ -233,7 +233,6 @@ func main() {
 		Category:    "integrations",
 		Icon:        "table",
 		Color:       "integration-green",
-		Width:       300,
 		Content: []botmodule.Field{
 			{Type: "credential", Key: "api_credential", Label: "Credential", CredentialType: "mymodule.apikey"},
 			{Type: "dynamic_select", Key: "doc_id", Label: "Hujjat", Resource: "docs", CredentialKey: "api_credential"},
