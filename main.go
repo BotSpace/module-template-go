@@ -1,9 +1,12 @@
 // module-template-go — Botmother tashqi modul namunasi (Go).
 //
-// Uchta node turi ko'rsatiladi:
+// Node turlari (SDK imkoniyatlari namunasi):
 //   - mymodule.Echo       — action: matnni echo qiladi
-//   - mymodule.AuthHeader — action: credential'dan HTTP header quradi
-//   - mymodule.OnKeyword  — trigger: xabar matnida kalit so'z bo'lsa fire bo'ladi
+//   - mymodule.AuthHeader — action: credential'dan HTTP header (Result.Error namuna)
+//   - mymodule.OnKeyword  — trigger: kalit so'z (Global toggle)
+//   - mymodule.Route      — action: NOMLI dinamik chiqishlar (found/missing)
+//   - mymodule.PickSheet  — action: KASKADLI dynamic_select (credential→hujjat→varaq)
+// Modul o'z credential turini ham e'lon qiladi (mymodule.apikey).
 //
 // Yangi modul yozish uchun:
 //  1. module.yaml: module.id va name o'zgartiring (slugni ham o'zgartiring).
@@ -36,7 +39,7 @@ func main() {
 		Description: "Kiritilgan matnni o'zgaruvchiga yozadi",
 		Category:    "integrations",
 		Icon:        "sparkles",
-		Color:       "blue",
+		Color:       "integration-sky",
 		Content: []botmodule.Field{
 			{
 				Type:        "text",
@@ -186,6 +189,82 @@ func main() {
 			}
 			return botmodule.MatchResult{Matched: matched, ContextUpdates: updates}
 		},
+	})
+
+	// ------------------------------------------------------------------
+	// 4. Action node — Route (NOMLI DINAMIK CHIQISHLAR namunasi)
+	//    Qiymatga qarab "found" yoki "missing" chiqishiga yo'naltiradi.
+	// ------------------------------------------------------------------
+	m.AddNode(botmodule.Node{
+		Type:        "mymodule.Route",
+		Title:       "Yo'naltirish (Route)",
+		Description: "Qiymat bo'lsa 'found', bo'lmasa 'missing' chiqishiga ketadi",
+		Category:    "integrations",
+		Icon:        "split",
+		Color:       "integration-indigo",
+		Content: []botmodule.Field{
+			{Type: "text", Key: "value", Label: "Qiymat", Placeholder: "{{state.user_id}}"},
+		},
+		Defaults: map[string]any{"value": ""},
+		Outputs: []botmodule.Output{
+			{Name: "found", Label: "Topildi", Variant: "success"},
+			{Name: "missing", Label: "Topilmadi", Variant: "danger"},
+		},
+		Execute: func(c *botmodule.ExecuteCtx) botmodule.Result {
+			if strings.TrimSpace(c.String("value")) != "" {
+				return botmodule.Result{
+					ExitOutput:     "found",
+					ContextUpdates: map[string]any{"route_value": c.String("value")},
+				}
+			}
+			return botmodule.Result{ExitOutput: "missing"}
+		},
+	})
+
+	// ------------------------------------------------------------------
+	// 5. Action node — PickSheet (KASKADLI dynamic_select namunasi)
+	//    Credential → hujjat → varaq (Google Sheets uslubida). Varaq ro'yxati
+	//    tanlangan hujjatga (dependsOn) bog'liq.
+	// ------------------------------------------------------------------
+	m.AddNode(botmodule.Node{
+		Type:        "mymodule.PickSheet",
+		Title:       "Jadval tanlash",
+		Description: "Credential → hujjat → varaq (kaskadli dinamik tanlov)",
+		Category:    "integrations",
+		Icon:        "table",
+		Color:       "integration-green",
+		Width:       300,
+		Content: []botmodule.Field{
+			{Type: "credential", Key: "api_credential", Label: "Credential", CredentialType: "mymodule.apikey"},
+			{Type: "dynamic_select", Key: "doc_id", Label: "Hujjat", Resource: "docs", CredentialKey: "api_credential"},
+			{Type: "dynamic_select", Key: "sheet_id", Label: "Varaq", Resource: "sheets", CredentialKey: "api_credential", DependsOn: []string{"doc_id"}},
+		},
+		ProducesState: []string{"picked_doc", "picked_sheet"},
+		Execute: func(c *botmodule.ExecuteCtx) botmodule.Result {
+			return botmodule.Result{ContextUpdates: map[string]any{
+				"picked_doc":   c.String("doc_id"),
+				"picked_sheet": c.String("sheet_id"),
+			}}
+		},
+	})
+
+	// dynamic_select options loaderlari — DEMO ma'lumot. Haqiqiy modulda
+	// c.Credential() bilan tashqi API'ga so'rov yuborib ro'yxat olinadi.
+	m.AddOptionsLoader("docs", func(c *botmodule.OptionsCtx) []botmodule.SelectOption {
+		return []botmodule.SelectOption{
+			{Value: "doc_1", Label: "Hisobot 2026"},
+			{Value: "doc_2", Label: "Mijozlar"},
+		}
+	})
+	m.AddOptionsLoader("sheets", func(c *botmodule.OptionsCtx) []botmodule.SelectOption {
+		// dependsOn: tanlangan hujjatga qarab varaqlar.
+		switch c.String("doc_id") {
+		case "doc_1":
+			return []botmodule.SelectOption{{Value: "s_yan", Label: "Yanvar"}, {Value: "s_fev", Label: "Fevral"}}
+		case "doc_2":
+			return []botmodule.SelectOption{{Value: "s_active", Label: "Faol"}, {Value: "s_archive", Label: "Arxiv"}}
+		}
+		return nil
 	})
 
 	m.Serve(":8100")
