@@ -1,36 +1,19 @@
 apiVersion: botmother.module/v1
 
 module:
-  id: mymodule               # global unique slug; node turlari shu bilan namespace qilinadi (mymodule.Echo)
+  id: mymodule               # global unique slug → node namespace (mymodule.Echo)
   name: My Module
-  version: 0.1.0
-  description: Go bilan yozilgan Botmother modul namunasi. Echo, AuthHeader, OnKeyword.
-  author: yourname
-  icon: sparkles             # lucide ikon nomi
+  description: Go bilan yozilgan Botmother modul namunasi.
+  icon: sparkles
 
-# Modul manbasi — ikkisidan bittasi:
-#   source.github   → platforma kodni klonlab image quradi
-#   source.endpoint → modul allaqachon shu manzilda ishlaydi (self-hosted), build yo'q
+# source: github (platforma image quradi) YOKI endpoint (self-hosted, build yo'q)
 source:
   github: https://github.com/BotSpace/module-template-go
   # endpoint: https://my-server.com
 
-runtime:
+runtime:                     # faqat source.github uchun
   dockerfile: Dockerfile
   port: 8100
-  healthcheck: /health
 
-# Tavsifiy bo'limlar (platforma faqat module/source/runtime ni o'qiydi).
-contract:
-  jsonrpc: "2.0"
-  endpoint: /rpc
-  methods: [describe, node.execute, trigger.match, docs]
-
-provides:
-  nodes:
-    - type: mymodule.Echo
-      trigger: false
-    - type: mymodule.AuthHeader
-      trigger: false
-    - type: mymodule.OnKeyword
-      trigger: true
+# Eslatma: node'lar, methodlar va credential type'lar describe() RPC'dan olinadi —
+# bu yerda sanalmaydi (platforma faqat module/source/runtime ni o'qiydi).
