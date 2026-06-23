@@ -190,6 +190,23 @@ c.MessageText()          // trigger: update.message.text
 c.CallbackData()         // trigger: callback_query.data
 ```
 
+### Fayl bilan ishlash (ExecuteCtx)
+
+```go
+uuid, _ := c.UploadFile("a.pdf", bytes)  // saqlash → UUID (state'ga qo'ying)
+data, _ := c.GetFile(uuid)               // o'qish → []byte
+_ = c.DeleteFile(uuid)                   // o'chirish
+```
+Engine fayl API'ni avtomatik beradi (project'ga scoped). Batafsil: SDK.md §20.5.
+
+### Boshqa yangi imkoniyatlar (SDK.md §20)
+
+- **`Result{Error: msg}`** — xatoni debug UI'da ko'rsatadi (§20.1)
+- **`Node.Outputs`** — nomli dinamik chiqishlar; `Result{ExitOutput:"found"}` (§20.2)
+- **`m.AddCredentialType(...)`** — modul o'z credential turini beradi (§20.3)
+- **`dynamic_select` + `m.AddOptionsLoader(...)`** — kaskadli tanlov, doc→sheet (§20.4)
+- **`Node.Global:true`** — global trigger toggle (§20.6)
+
 ---
 
 ## SDK to'liq hujjati
