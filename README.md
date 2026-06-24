@@ -193,11 +193,13 @@ c.CallbackData()         // trigger: callback_query.data
 ### Fayl bilan ishlash (ExecuteCtx)
 
 ```go
-uuid, _ := c.UploadFile("a.pdf", bytes)  // saqlash → UUID (state'ga qo'ying)
-data, _ := c.GetFile(uuid)               // o'qish → []byte
-_ = c.DeleteFile(uuid)                   // o'chirish
+uuid, _ := c.UploadFile("a.pdf", bytes)                 // doimiy saqlash → UUID (state'ga qo'ying)
+uuid, _ = c.UploadFileWithTTL("temp.pdf", bytes, 3600)  // 3600s saqlanadi, keyin avto-o'chadi (0/<0 = doimiy)
+data, _ := c.GetFile(uuid)                              // o'qish → []byte
+_ = c.DeleteFile(uuid)                                  // o'chirish
 ```
-Engine fayl API'ni avtomatik beradi (project'ga scoped). Batafsil: SDK.md §20.5.
+Engine fayl API'ni avtomatik beradi (project'ga scoped). TTL bilan saqlangan fayllar
+muddati o'tgach platforma tomonidan avtomatik tozalanadi. Batafsil: SDK.md §20.5.
 
 ### Boshqa yangi imkoniyatlar (SDK.md §20)
 
