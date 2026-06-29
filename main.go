@@ -6,6 +6,7 @@
 //   - mymodule.OnKeyword  — trigger: kalit so'z (Global toggle)
 //   - mymodule.Route      — action: NOMLI dinamik chiqishlar (found/missing)
 //   - mymodule.PickSheet  — action: KASKADLI dynamic_select (credential→hujjat→varaq)
+//
 // Modul o'z credential turini ham e'lon qiladi (mymodule.apikey).
 //
 // Yangi modul yozish uchun:
@@ -57,6 +58,35 @@ func main() {
 					"echo_output": c.String("input"),
 				},
 			}
+		},
+	})
+
+	// ------------------------------------------------------------------
+	// AI TOOL — modul AI agent uchun DINAMIK tool beradi.
+	//   Builder AI agent node'ga "mymodule.search" tool'ini accessory qilib
+	//   ulaydi; LLM uni chaqirsa, engine shu modulga JSON-RPC yuboradi va
+	//   Invoke qaytargan matn LLM'ga natija bo'ladi.
+	// ------------------------------------------------------------------
+	m.AddTool(botmodule.Tool{
+		Name:        "mymodule.search",
+		Description: "Katalogdan mahsulot qidiradi va topilganlarni qaytaradi.",
+		Parameters: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"query": map[string]any{
+					"type":        "string",
+					"description": "Qidiruv so'rovi (mahsulot nomi yoki kalit so'z).",
+				},
+			},
+			"required": []any{"query"},
+		},
+		Invoke: func(c *botmodule.ToolCtx) (string, error) {
+			query := c.String("query")
+			if query == "" {
+				return "", fmt.Errorf("query bo'sh bo'lishi mumkin emas")
+			}
+			// Bu yerda real qidiruv (DB/API) bo'lardi — namuna uchun statik javob.
+			return fmt.Sprintf("'%s' bo'yicha 3 ta mahsulot topildi: Kitob A, Kitob B, Kitob C", query), nil
 		},
 	})
 
