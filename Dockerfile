@@ -10,6 +10,8 @@ WORKDIR /build
 # go.sum bor → checksum o'sha fayldan tekshiriladi, sum.golang.org kerak emas.
 ENV GOSUMDB=off
 
+RUN apk add --no-cache git
+
 # Dependency cache qatlami: botmodule-go SDK GitHub'dan yuklanadi (public modul).
 COPY go.mod go.sum ./
 RUN go mod download
